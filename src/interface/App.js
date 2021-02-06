@@ -25,6 +25,7 @@ import Footer from 'interface/Footer';
 import HomePage from 'interface/Home';
 import ThunderSoundEffect from 'interface/audio/Thunder Sound effect.mp3';
 import ReportPage from 'interface/report';
+import ReportPageMultiple from 'interface/reportMultiple';
 import PortalTarget from 'interface/PortalTarget';
 
 import 'react-toggle/style.css';
@@ -38,6 +39,7 @@ const CharacterPage = lazyLoadComponent(() =>
     ),
   ),
 );
+
 const GuildPage = lazyLoadComponent(() =>
   retryingPromise(() =>
     import(/* webpackChunkName: 'GuildPage' */ 'interface/GuildPage').then(
@@ -204,6 +206,10 @@ class App extends React.Component {
 
     return (
       <Switch>
+        <Route
+          path="/custom"
+          component={ReportPageMultiple}
+        />
         <Route
           path="/character/:region/:realm/:name"
           render={({ match }) => (

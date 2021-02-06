@@ -12,10 +12,12 @@ import CharacterIcon from 'interface/icons/Person';
 import GuildIcon from 'interface/icons/People';
 
 import ReportSelecter from './ReportSelecter';
+import ReportSelecterMultiple from './ReportSelecterMultiple';
 import ReportHistory from './ReportHistory';
 
 import './Header.scss';
 
+const STATE_SEARCH_MULTIPLE_REPORTS = 3;
 const STATE_SEARCH_REPORT = 0;
 const STATE_SEARCH_CHAR = 1;
 const STATE_SEARCH_GUILD = 2;
@@ -28,10 +30,11 @@ class ReportSelectionHeader extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      searchType: STATE_SEARCH_REPORT,
+      searchType: STATE_SEARCH_MULTIPLE_REPORTS,
     };
     this.handleCharacterSearchClick = this.handleCharacterSearchClick.bind(this);
     this.handleReportSearchClick = this.handleReportSearchClick.bind(this);
+    this.handleMultipleReportSearchClick = this.handleMultipleReportSearchClick.bind(this);
     this.handleGuildSearchClick = this.handleGuildSearchClick.bind(this);
   }
 
@@ -46,6 +49,13 @@ class ReportSelectionHeader extends React.PureComponent {
     e.preventDefault();
     this.setState({
       searchType: STATE_SEARCH_REPORT,
+    });
+  }
+
+  handleMultipleReportSearchClick(e) {
+    e.preventDefault();
+    this.setState({
+      searchType: STATE_SEARCH_MULTIPLE_REPORTS,
     });
   }
 
@@ -75,6 +85,8 @@ class ReportSelectionHeader extends React.PureComponent {
         );
       case STATE_SEARCH_GUILD:
         return <NameSearch type={SearchType.GUILD} />;
+      case STATE_SEARCH_MULTIPLE_REPORTS:
+        return <ReportSelecterMultiple />;
       case STATE_SEARCH_REPORT:
       default:
         return <ReportSelecter />;
@@ -107,6 +119,17 @@ class ReportSelectionHeader extends React.PureComponent {
                 <nav>
                   <ul>
                     <li
+                      key="multipleReports"
+                      className={
+                        this.state.searchType === STATE_SEARCH_MULTIPLE_REPORTS ? 'active' : undefined
+                      }
+                    >
+                      <a href="/" style={{ padding: '5px' }} onClick={this.handleMultipleReportSearchClick}>
+                        <ReportIcon />
+                        <Trans id="interface.home.reportSelectionHeader.multipleReports">Multiple Reports</Trans>
+                      </a>
+                    </li>
+                    <li
                       key="report"
                       className={
                         this.state.searchType === STATE_SEARCH_REPORT ? 'active' : undefined
@@ -114,7 +137,7 @@ class ReportSelectionHeader extends React.PureComponent {
                     >
                       <a href="/" style={{ padding: '5px' }} onClick={this.handleReportSearchClick}>
                         <ReportIcon />
-                        <Trans id="interface.home.reportSelectionHeader.report">Report</Trans>
+                        <Trans id="interface.home.reportSelectionHeader.report">Report _</Trans>
                       </a>
                     </li>
                     <li

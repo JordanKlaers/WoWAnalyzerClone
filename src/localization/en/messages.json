@@ -287,6 +287,7 @@
   "interface.home.reportSelectionHeader.onlyRankedWCLogs": "The character page will only show fights that have been ranked by Warcraft Logs. Wipes are not included and during busy periods there might be a delay before new reports appear. You can still analyze these fights by manually finding the report on Warcraft Logs and using the report link.",
   "interface.home.reportSelectionHeader.recentlyViewed": "Recently viewed",
   "interface.home.reportSelectionHeader.report": "Report",
+  "interface.home.reportSelectionHeader.multipleReports": "Multiple Reports",
   "interface.languageSwitcher.clickToSwitch": "Click to switch languages. We've only just started localizing the app, it will take some time until everything is localized.",
   "interface.layout.navigationBar.fightSelection": "Fight selection",
   "interface.layout.navigationBar.playerSelection": "Player selection",

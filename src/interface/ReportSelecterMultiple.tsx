@@ -49,11 +49,11 @@ export function getCharacterFromBattleNetUrl(input: string) {
 export function constructURL(value: string) {
   const delimiter = '|';
   const reportList = value.split(delimiter);
-  reportList.forEach(url => {
-    const code = getReportCode(value);
-    const fight = getFight(value);
-    const player = getPlayer(value);
-    const character = getCharacterFromWCLUrl(value) || getCharacterFromBattleNetUrl(value);
+  const formattedReports = reportList.map(url => {
+    const code = getReportCode(url);
+    const fight = getFight(url);
+    const player = getPlayer(url);
+    const character = getCharacterFromWCLUrl(url) || getCharacterFromBattleNetUrl(url);
     if (character) {
       const constructedUrl = `/character/${character.region}/${character.realm}/${character.name}`;
       return constructedUrl;
@@ -68,12 +68,12 @@ export function constructURL(value: string) {
         if (player) {
           constructedUrl += `/${player}`;
         }
-      }
-
+      } 
       return constructedUrl;
     }
+    return null;
   });
-  return false;
+  return formattedReports;
 }
 
 const ReportSelecter = () => {
@@ -114,9 +114,10 @@ const ReportSelecter = () => {
     //need to verify multiple report
 
     //need constructed URL to work for multiple URLS - maybe save the info to the window object
-    const constructedURL = constructURL(reportCode);
+    const constructedURLs = constructURL(reportCode);
+    console.log('multi report constructed URL: ', constructedURLs);
     push('/custom', {
-      urls: "this would be the data"
+      urls: constructedURLs
     });
   };
 

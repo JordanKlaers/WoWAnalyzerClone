@@ -110,6 +110,7 @@ class PlayerLoader extends React.PureComponent {
     }
     try {
       const combatants = await fetchCombatants(report.code, fight.start_time, fight.end_time);
+      console.log('what do the combatants look like: ', combatants);
       combatants.forEach(player => {
         if (process.env.NODE_ENV === 'development' && FAKE_PLAYER_IF_DEV_ENV) {
           console.error('This player (sourceID: ' + player.sourceID + ') has an error. Because you\'re in development environment, we have faked the missing information, see CombatantInfoFaker.ts for more information.');

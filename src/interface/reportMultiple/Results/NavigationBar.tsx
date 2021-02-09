@@ -24,37 +24,10 @@ interface Props {
 const NavigationBar = ({ makeTabUrl, tabs, selectedTab }: Props) => {
   const pages = [
     {
-      icon: ChecklistIcon,
-      name: <Trans id="interface.report.results.navigationBar.overview">Overview</Trans>,
-      url: 'overview',
-    },
-    {
-      icon: StatisticsIcon,
-      name: <Trans id="interface.report.results.navigationBar.statistics">Statistics</Trans>,
-      url: 'statistics',
-    },
-    {
       icon: TimelineIcon,
       name: <Trans id="interface.report.results.navigationBar.timeline">Timeline</Trans>,
       url: 'timeline',
-    },
-    ...(tabs
-      ?.sort((a, b) => (a.order || 0) - (b.order || 0))
-      .map(tab => ({
-        icon: tab.icon || OtherIcon,
-        name: tab.title,
-        url: tab.url,
-      })) || []),
-    {
-      icon: ArmorIcon,
-      name: <Trans id="interface.report.results.navigationBar.character">Character</Trans>,
-      url: 'character',
-    },
-    {
-      icon: AboutIcon,
-      name: <Trans id="interface.report.results.navigationBar.about">About</Trans>,
-      url: 'about',
-    },
+    }
   ];
 
   if (selectedTab === 'events') {

@@ -84,6 +84,7 @@ const ReportSelecter = () => {
   const processCode = useCallback(
     (reportCode: string) => {
       const constructedURL = constructURL(reportCode);
+      console.log('single report constructedURL: ', constructedURL);
       if (!constructedURL) {
         return;
       }

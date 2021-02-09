@@ -380,7 +380,7 @@ class Results extends React.PureComponent {
       timeFilter,
     } = this.props;
     const config = this.context.config;
-
+    console.log("CONTEXT: ", this.context);
     const boss = findByBossId(fight.boss);
 
     const results = !this.isLoading && parser.generateResults(this.state.adjustForDowntime);

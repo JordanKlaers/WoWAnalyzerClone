@@ -5,3 +5,10 @@ export function setReport(report) {
     payload: report,
   };
 }
+export const SET_REPORTS = 'SET_REPORTS';
+export function setReports(reports) {
+  return {
+    type: SET_REPORTS,
+    payload: reports,
+  };
+}

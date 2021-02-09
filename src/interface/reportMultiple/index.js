@@ -6,6 +6,7 @@ import makeAnalyzerUrl from 'interface/makeAnalyzerUrl';
 import NavigationBar from 'interface/NavigationBar';
 import ErrorBoundary from 'interface/ErrorBoundary';
 
+import getConfig from 'parser/getConfig';
 import ReportLoader from './ReportLoader';
 import FightSelection from './FightSelection';
 import PlayerLoader from './PlayerLoader';
@@ -68,6 +69,7 @@ class ResultsLoader extends React.PureComponent {
   }
 
   handleParserLoader(isLoading, parserClass) {
+    console.log('setting state: ', isLoading, parserClass);
     this.setState({
       isLoadingParser: isLoading,
       parserClass,
@@ -155,8 +157,9 @@ class ResultsLoader extends React.PureComponent {
 
   render() {
     const { config, report, fight, player, combatants } = this.props;
-    console.log('laoded the report mutiple');
+    // console.log('did the arguments pass correctly: ', config, '\n', report, '\n', fight, '\n', player, '\n', combatants);
     const build = this.state.parser && this.state.parser.build;
+    // console.log('did we get the build: ', build);
     return (
       <>
         {/* Load these different api calls asynchronously */}
@@ -194,6 +197,7 @@ class ResultsLoader extends React.PureComponent {
             {this.handlePhaseParser}
           </PhaseParser>
         )}
+        
         {!this.state.isLoadingEvents && this.state.bossPhaseEventsLoadingState !== BOSS_PHASES_STATE.LOADING && (
           <TimeEventFilter
             fight={fight}
@@ -206,6 +210,7 @@ class ResultsLoader extends React.PureComponent {
             {this.handleTimeFilter}
           </TimeEventFilter>
         )}
+        
         {!this.state.isLoadingParser && !this.state.isLoadingCharacterProfile && !this.state.isFilteringEvents && (
           <EventParser
             report={report}
@@ -222,9 +227,37 @@ class ResultsLoader extends React.PureComponent {
             {this.handleEventsParser}
           </EventParser>
         )}
+        
+        {
+        console.log('can I log here?', 
+          'this.state.isLoadingParser: ', this.state.isLoadingParser, '\n',
+          'this.state.isLoadingEvents', this.state.isLoadingEvents, '\n',
+          'this.state.bossPhaseEventsLoadingState', this.state.bossPhaseEventsLoadingState, '\n',
+          'this.state.isLoadingCharacterProfile', this.state.isLoadingCharacterProfile, '\n',
+          'this.state.parsingState', this.state.parsingState, '\n',
+          'this.progress', this.progress, '\n',
+          'report', report, '\n',
+          'filteredFight', this.state.filteredFight || {offset_time: 0, filtered: false, ...fight}, '\n',
+          'player', player,
+          'characterProfile=', this.state.characterProfile, '\n',
+          'parser=', this.state.parser, '\n',
+          'isLoadingPhases=', this.state.isLoadingPhases, '\n',
+          'isFilteringEvents=', this.state.isFilteringEvents, '\n',
+          'phases=', this.state.phases, '\n',
+          'selectedPhase=', this.state.selectedPhase, '\n',
+          'selectedInstance=', this.state.selectedInstance, '\n',
+          'handlePhaseSelection=', this.handlePhaseSelection, '\n',
+          'applyFilter=', this.applyTimeFilter, '\n',
+          'timeFilter=', this.state.timeFilter, '\n',
+          'build=', build
+          // 'makeTabUrl=', {tab => makeAnalyzerUrl(report, fight.id, player.id, tab, build)}
+          // 'makeBuildUrl=', {(tab, build) => makeAnalyzerUrl(report, fight.id, player.id, tab, build)}
+        )
+        }
 
 
         <Results
+          config={config}
           isLoadingParser={this.state.isLoadingParser}
           isLoadingEvents={this.state.isLoadingEvents}
           bossPhaseEventsLoadingState={this.state.bossPhaseEventsLoadingState}
@@ -257,48 +290,25 @@ class ResultsLoader extends React.PureComponent {
 // TODO: Turn all the loaders and shit into hooks
 const Report = () => {
   const {state} = useLocation();
-  console.log('okay maybe this does something', state);
   return (
     // TODO: Error boundary so all sub components don't need the errorHandler with the silly withRouter dependency. Instead just throw the error and let the boundary catch it - if possible.
     <>
       <NavigationBar />
 
       <ErrorBoundary>
-        <ReportLoader>
-          {(report, refreshReport) => {
-            console.log('what do we have here: ', report);
+        <ReportLoader reportURLs={state.urls}>
+          {(reports, refreshReport) => {
+            // console.log('sending the correct inputs: ', reports[0].config, '\n', reports[0], '\n', reports[0].fight, '\n', reports[0].player, '\n', reports[0].combatants);
             return (
-            <PatchChecker report={report}>
-              <FightSelection report={report} refreshReport={refreshReport}>
-                {fight => (
-                  <PlayerLoader report={report} fight={fight}>
-                    {(player, combatant, combatants) => (
-                      <ConfigLoader
-                        specId={combatant.specID}
-                      >
-                        {config => (
-                          <SupportChecker
-                            config={config}
-                            report={report}
-                            fight={fight}
-                            player={player}
-                          >
-                            <ResultsLoader
-                              config={config}
-                              report={report}
-                              fight={fight}
-                              player={player}
-                              combatants={combatants}
-                            />
-                          </SupportChecker>
-                        )}
-                      </ConfigLoader>
-                    )}
-                  </PlayerLoader>
-                )}
-              </FightSelection>
-            </PatchChecker>
-          )}}
+              <ResultsLoader
+                config={reports[0].config}
+                report={reports[0]}
+                fight={reports[0].fight}
+                player={reports[0].player}
+                combatants={reports[0].combatants}
+              />
+            )
+          }}
         </ReportLoader>
       </ErrorBoundary>
     </>

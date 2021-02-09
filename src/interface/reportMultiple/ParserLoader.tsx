@@ -17,6 +17,7 @@ interface Props {
 //  removed in favor of using the hook
 const ParserLoader = ({ children, config }: Props) => {
   const parserClass = useParser(config);
+  console.log(parserClass);
 
   return children(!parserClass, parserClass);
 };

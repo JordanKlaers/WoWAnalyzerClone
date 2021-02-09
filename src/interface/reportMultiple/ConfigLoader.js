@@ -10,7 +10,9 @@ class ConfigLoader extends React.PureComponent {
     specId: PropTypes.number.isRequired,
   };
   static getDerivedStateFromProps(props, state) {
+    console.log('getting derived state: ', state, props);
     if (!state.config || props.specId !== state.config.spec.id) {
+      console.log('getConfig(props.specId)', getConfig(props.specId))
       return {
         config: getConfig(props.specId),
       };

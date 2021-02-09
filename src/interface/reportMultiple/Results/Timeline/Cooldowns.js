@@ -44,7 +44,6 @@ class Cooldowns extends React.PureComponent {
   }
   render() {
     const { eventsBySpellId } = this.props;
-    console.log(eventsBySpellId);
     return (
       <div className="cooldowns">
         {this.renderLanes(eventsBySpellId, false)}

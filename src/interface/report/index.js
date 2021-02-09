@@ -155,6 +155,7 @@ class ResultsLoader extends React.PureComponent {
   render() {
     const { config, report, fight, player, combatants } = this.props;
     const build = this.state.parser && this.state.parser.build;
+    console.log('single report inputs: ', config, '\n', report, '\n', fight, '\n', player, '\n', combatants, '\n', build);
     return (
       <>
         {/* Load these different api calls asynchronously */}

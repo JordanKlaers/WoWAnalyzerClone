@@ -5,9 +5,12 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { t } from '@lingui/macro';
 
-import { fetchFights, LogNotFoundError } from 'common/fetchWclApi';
+import getConfig from 'parser/getConfig';
+import { getFightFromReport } from 'interface/selectors/fight';
+import { getFightId, getPlayerId, getPlayerName } from 'interface/selectors/url/report';
+import { fetchCombatants, fetchFights, LogNotFoundError } from 'common/fetchWclApi';
 import { captureException } from 'common/errorLogger';
-import { setReport } from 'interface/actions/report';
+import { setReports } from 'interface/actions/report';
 import { getReportCode } from 'interface/selectors/url/report';
 import makeAnalyzerUrl from 'interface/makeAnalyzerUrl';
 import ActivityIndicator from 'interface/ActivityIndicator';
@@ -24,59 +27,72 @@ class ReportLoader extends React.PureComponent {
   static propTypes = {
     children: PropTypes.func.isRequired,
     reportCode: PropTypes.string,
-    setReport: PropTypes.func.isRequired,
+    setReports: PropTypes.func.isRequired,
     history: PropTypes.shape({
       push: PropTypes.func.isRequired, // adds to browser history
     }).isRequired,
   };
   state = {
     error: null,
-    report: null,
+    reports: null,
   };
 
   constructor(props) {
     super(props);
     this.handleRefresh = this.handleRefresh.bind(this);
   }
-  setState(error = null, report = null) {
+  setState(error = null, reports = null) {
     super.setState({
       error,
-      report,
+      reports,
     });
     // We need to set the report in the global state so the NavigationBar, which is not a child of this component, can also use it
-    this.props.setReport(report);
+    this.props.setReports(reports);
   }
   resetState() {
     this.setState(null, null);
   }
 
   componentDidMount() {
-    if (this.props.reportCode) {
+    if (this.props.reportCodes.length) {
       // noinspection JSIgnoredPromiseFromCall
-      this.loadReport(this.props.reportCode, REFRESH_BY_DEFAULT);
+      this.loadReport(this.props.reportCodes, this.props.reportURLs, REFRESH_BY_DEFAULT);
     }
   }
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.reportCode && this.props.reportCode !== prevProps.reportCode) {
+    if (this.props.reportCodes && this.props.reportCodes.length !== prevProps.reportCodes.length) {
       // noinspection JSIgnoredPromiseFromCall
-      this.loadReport(this.props.reportCode);
+      this.loadReport(this.props.reportCodes, this.props.reportURLs);
     }
   }
-  async loadReport(reportCode, refresh = false) {
-    const isAnonymous = reportCode.startsWith('a:');
+  async loadReport(reportCodes, reportURLs, refresh = false) {
     try {
       this.resetState();
-      const report = await fetchFights(reportCode, refresh);
-      console.log("what does the report look like: ", report);
-      if (this.props.reportCode !== reportCode) {
-        return; // the user switched report already
+      const reports = [];
+      for (let i = 0; i < reportCodes.length; i++) {
+        const reportCode = reportCodes[i];
+        // const isAnonymous = reportCode.startsWith('a:');
+        const report = await fetchFights(reportCode, refresh);
+        //include the code, url, player and playerID associated with each report
+        report['fightId'] = getFightId(reportURLs[i]);
+        report['fight'] = getFightFromReport(report, report.fightId);
+        report['playerId'] = getPlayerId(reportURLs[i]);
+        report['player'] = report.friendlies.filter(friendly => {
+          return friendly.id == report.playerId;
+        })[0];
+        report['playerName'] = report.player.name;
+        report['code'] = reportCode;
+        report['reportURL'] = reportURLs[i];
+        const combatants = await fetchCombatants(report.code, report.fight.start_time, report.fight.end_time);
+        const combatant = combatants.filter(combatant => {
+          return combatant.sourceID == report.playerId;
+        })[0]
+        report['combatants'] = combatants;
+        report['combatant'] = combatant;
+        report['config'] = getConfig(combatant.specID);
+        reports.push(report);
       }
-      this.setState(null, {
-        ...report,
-        isAnonymous,
-        code: reportCode, // Pass the code so know which report this is
-        // TODO: Remove the code prop
-      });
+      this.setState(null, reports);
       // We need to set the report in the global state so the NavigationBar, which is not a child of this component, can also use it
     } catch (err) {
       const isCommonError = err instanceof LogNotFoundError;
@@ -88,7 +104,7 @@ class ReportLoader extends React.PureComponent {
   }
   handleRefresh() {
     // noinspection JSIgnoredPromiseFromCall
-    this.loadReport(this.props.reportCode, true);
+    this.loadReport(this.props.reportCodes, this.props.reportURLs, true);
   }
 
   renderError(error) {
@@ -111,28 +127,30 @@ class ReportLoader extends React.PureComponent {
       return this.renderError(error);
     }
 
-    const report = this.state.report;
-    if (!report) {
+    const reports = this.state.reports;
+    if (!reports) {
       return this.renderLoading();
     }
 
     return (
       <>
         {/* TODO: Refactor the DocumentTitle away */}
-        <DocumentTitle title={report.title} />
+        <DocumentTitle title={'Multiple Reports'} />
 
-        {this.props.children(report, this.handleRefresh)}
+        {this.props.children(reports, this.handleRefresh)}
       </>
     );
   }
 }
 
 const mapStateToProps = (state, props) => ({
-  reportCode: getReportCode(props.location.pathname),
+  reportURLs: props.reportURLs,
+  reportCodes: [...props.reportURLs].map(url => getReportCode(url))
 });
+
 export default compose(
   withRouter,
   connect(mapStateToProps, {
-    setReport,
+    setReports,
   }),
 )(ReportLoader);

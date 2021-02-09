@@ -201,67 +201,67 @@ class Results extends React.PureComponent {
     const { parser, premium } = this.props;
 
     switch (selectedTab) {
-      case TABS.OVERVIEW: {
-        if (this.isLoading) {
-          return this.renderLoadingIndicator();
-        }
-        const checklist = parser.getOptionalModule(Checklist);
-        return <Overview checklist={checklist && checklist.render()} issues={results.issues} />;
-      }
-      case TABS.STATISTICS:
-        if (this.isLoading) {
-          return this.renderLoadingIndicator();
-        }
-        return <Statistics parser={parser}>{results.statistics}</Statistics>;
+      // case TABS.OVERVIEW: {
+      //   if (this.isLoading) {
+      //     return this.renderLoadingIndicator();
+      //   }
+      //   const checklist = parser.getOptionalModule(Checklist);
+      //   return <Overview checklist={checklist && checklist.render()} issues={results.issues} />;
+      // }
+      // case TABS.STATISTICS:
+      //   if (this.isLoading) {
+      //     return this.renderLoadingIndicator();
+      //   }
+      //   return <Statistics parser={parser}>{results.statistics}</Statistics>;
       case TABS.TIMELINE:
         if (this.isLoading) {
           return this.renderLoadingIndicator();
         }
         return <TimelineTab parser={parser} />;
-      case TABS.EVENTS:
-        if (this.isLoading) {
-          return this.renderLoadingIndicator();
-        }
-        return (
-          <div className="container">
-            <EventsTab parser={parser} />
-          </div>
-        );
-      case TABS.CHARACTER: {
-        if (this.isLoading) {
-          return this.renderLoadingIndicator();
-        }
-        const statTracker = parser.getModule(StatTracker);
-        return (
-          <div className="container">
-            <Character statTracker={statTracker} combatant={parser.selectedCombatant} />
+      // case TABS.EVENTS:
+      //   if (this.isLoading) {
+      //     return this.renderLoadingIndicator();
+      //   }
+      //   return (
+      //     <div className="container">
+      //       <EventsTab parser={parser} />
+      //     </div>
+      //   );
+      // case TABS.CHARACTER: {
+      //   if (this.isLoading) {
+      //     return this.renderLoadingIndicator();
+      //   }
+      //   const statTracker = parser.getModule(StatTracker);
+      //   return (
+      //     <div className="container">
+      //       <Character statTracker={statTracker} combatant={parser.selectedCombatant} />
 
-            {premium === false && (
-              <div style={{ margin: '40px 0' }}>
-                <Ad />
-              </div>
-            )}
+      //       {premium === false && (
+      //         <div style={{ margin: '40px 0' }}>
+      //           <Ad />
+      //         </div>
+      //       )}
 
-            <EncounterStats
-              currentBoss={parser.fight.boss}
-              difficulty={parser.fight.difficulty}
-              spec={parser.selectedCombatant._combatantInfo.specID}
-              duration={parser.fight.end_time - parser.fight.start_time}
-              combatant={parser.selectedCombatant}
-            />
-          </div>
-        );
-      }
-      case TABS.ABOUT: {
-        const config = this.context.config;
-        return (
-          <div className="container">
-            <About config={config} />
+      //       <EncounterStats
+      //         currentBoss={parser.fight.boss}
+      //         difficulty={parser.fight.difficulty}
+      //         spec={parser.selectedCombatant._combatantInfo.specID}
+      //         duration={parser.fight.end_time - parser.fight.start_time}
+      //         combatant={parser.selectedCombatant}
+      //       />
+      //     </div>
+      //   );
+      // }
+      // case TABS.ABOUT: {
+      //   const config = this.context.config;
+      //   return (
+      //     <div className="container">
+      //       <About config={config} />
 
-            <ResultsChangelogTab changelog={config.changelog} />
-          </div>
-        );
-      }
+      //       <ResultsChangelogTab changelog={config.changelog} />
+      //     </div>
+      //   );
+      // }
       default: {
         if (this.isLoading) {
           return this.renderLoadingIndicator();
@@ -362,6 +362,7 @@ class Results extends React.PureComponent {
   }
   render() {
     const {
+      config,
       parser,
       report,
       fight,
@@ -379,7 +380,7 @@ class Results extends React.PureComponent {
       applyFilter,
       timeFilter,
     } = this.props;
-    const config = this.context.config;
+    // const config = this.context.config;
 
     const boss = findByBossId(fight.boss);
 
@@ -460,61 +461,6 @@ class Results extends React.PureComponent {
 
         <div className="container" style={{ marginTop: 40 }}>
           <div className="row">
-            <div className="col-md-8">
-              <small>
-                <Trans id="interface.report.results.providedBy">Provided by</Trans>
-              </small>
-              <div style={{ fontSize: 16 }}>
-                <Trans id="interface.report.results.providedByDetails">
-                  {config.spec.specName} {config.spec.className} analysis has been provided by{' '}
-                  {contributorinfo}. They love hearing what you think, so please let them know!{' '}
-                  <Link to={makeTabUrl('about')}>More information about this spec's analyzer.</Link>
-                </Trans>
-              </div>
-            </div>
-            <div className="col-md-3">
-              <small>
-                <Trans id="interface.report.results.viewOn">View on</Trans>
-              </small>
-              <br />
-              <Tooltip
-                content={t({
-                  id: 'interface.report.results.tooltip.newTab.originalReport',
-                  message: `Opens in a new tab. View the original report.`,
-                })}
-              >
-                <a
-                  href={makeWclUrl(report.code, {
-                    fight: fight.id,
-                    source: parser ? parser.playerId : undefined,
-                  })}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn"
-                  style={{ fontSize: 20, padding: '6px 0' }}
-                >
-                  <WarcraftLogsIcon style={{ height: '1.2em', marginTop: '-0.1em' }} /> Warcraft
-                  Logs
-                </a>
-              </Tooltip>
-              <br />
-              <Tooltip
-                content={t({
-                  id: 'interface.report.results.tooltip.newTab.insightsAndTimelines',
-                  message: `Opens in a new tab. View insights and timelines for raid encounters.`,
-                })}
-              >
-                <a
-                  href={`https://www.wipefest.net/report/${report.code}/fight/${fight.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn"
-                  style={{ fontSize: 20, padding: '6px 0' }}
-                >
-                  <WipefestIcon style={{ height: '1.2em', marginTop: '-0.1em' }} /> Wipefest
-                </a>
-              </Tooltip>
-            </div>
             <div className="col-md-1">
               <Tooltip
                 content={
@@ -528,19 +474,13 @@ class Results extends React.PureComponent {
             </div>
           </div>
         </div>
-
-        {premium === false && (
-          <div className="container" style={{ marginTop: 40 }}>
-            <Ad />
-          </div>
-        )}
       </div>
     );
   }
 }
 
 const mapStateToProps = (state, props) => ({
-  selectedTab: getResultTab(props.location.pathname),
+  selectedTab: TABS.TIMELINE, //getResultTab(props.location.pathname),
   premium: hasPremium(state),
 });
 
